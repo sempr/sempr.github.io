@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>利用Travis CI自动部署hugo生成的静态页面到github pages // 瞎扯中的山坡驴</title>
+
+        <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="description" content="山坡驴真的在瞎扯啊瞎扯啊瞎扯。。。">
+    <meta name="keywords" content="">
+    <meta name="author" content="Sempr Wang">
+        <meta property="og:title" content="利用Travis CI自动部署hugo生成的静态页面到github pages" />
+    <meta property="og:description" content="山坡驴真的在瞎扯啊瞎扯啊瞎扯。。。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://sempr.github.io/posts/hugo_travisci_github_pages/" />
+    
+
+    <link href="" rel="alternate" type="application/rss+xml" title="瞎扯中的山坡驴" />
+    <link rel="shortcut icon" href="https://sempr.github.io/favicon.png">
+
+    <link href="https://sempr.github.io/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+    <link href="https://sempr.github.io/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://sempr.github.io/css/style.css">
+
+    <meta name="generator" content="Hugo 0.58.2" />
+</head>
+
+
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div id="header-inner" class="inner">
+            <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+            <a id="logo" class="logo-text" href="https://sempr.github.io/">瞎扯中的山坡驴</a>
+            <nav id="main-nav">
+                
+            </nav>
+            <nav id="sub-nav">
+                <div id="search-form-wrap">
+                </div>
+            </nav>
+        </div>
+    </div>
+</header>
+
+    <section id="main" class="outer">
+        <article class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        <header class="article-header">
+            <h1 class="article-title" itemprop="name">利用Travis CI自动部署hugo生成的静态页面到github pages</h1>
+        </header>
+        
+        <div class="article-meta">
+            <a href="https://sempr.github.io/posts/hugo_travisci_github_pages/" class="article-date">
+                <time datetime='2018-03-25T20:04:47.000&#43;08:00' itemprop="datePublished">2018-03-25</time>
+            </a>
+            
+            
+            
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <p>过程其实挺简单的，在github生成一个token给travis ci使用 直接写个脚本从github上把hugo的二进制文件下载下来在blog的根目录下运行即可得到public目录下要部署的所有静态文件</p>
+
+<p>然后再利用travis ci提供的<a href="https://docs.travis-ci.com/user/deployment/pages/">GitHub Page Deployment</a> 的文档配置一下，指定要部署的目标即可。</p>
+
+<p>相关代码如下</p>
+
+<p>.travis.yml</p>
+
+<pre><code>language: bash
+script:
+    ./build.sh
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: false 
+  repo: sempr/sempr.github.io
+  target-branch: master
+  on:
+    branch: master
+  local-dir: public
+  verbose: true
+</code></pre>
+
+<p>build.sh</p>
+
+<pre><code>#!/bin/bash
+
+DIR=&quot;$( cd &quot;$( dirname &quot;$BASH_SOURCE[0]&quot; )&quot; &amp;&amp; pwd )&quot;
+cd &quot;$DIR&quot;
+git submodule init
+git submodule update --remote
+wget -qO- https://github.com/gohugoio/hugo/releases/download/v0.37.1/hugo_0.37.1_Linux-64bit.tar.gz | tar xvz
+./hugo
+</code></pre>
+
+        </div>
+
+        
+        
+        
+
+        
+
+
+        
+    </div>
+    <nav id="article-nav">
+    
+    <a href="https://sempr.github.io/posts/docker_with_iptables/" id="article-nav-newer" class="article-nav-link-wrap">
+        <div class="article-nav-title"><span>&lt;</span>&nbsp;
+            重启iptables导致的docker容器工作不正常问题原因及解决方法
+        </div>
+    </a>
+    
+    
+    <a href="https://sempr.github.io/posts/mtr_none_root_mac/" id="article-nav-older" class="article-nav-link-wrap">
+        <div class="article-nav-title">MTR v0.92 在mac下的非root帐号下使用&nbsp;<span>&gt;</span></div>
+    </a>
+    
+</nav>
+
+</article>
+
+        
+    </section>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2019 瞎扯中的山坡驴
+            <br />
+            Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos" target="_blank">Minos</a>
+        </div>
+    </div>
+    
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow-night.min.css" integrity="sha256-2wL88NKUqvJi/ExflDzkzUumjUM73mcK2gBvBBeLvTk=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js" integrity="sha256-KbfTjB0WZ8vvXngdpJGY3Yp3xKk+tttbqClO11anCIU=" crossorigin="anonymous"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script>
+        document.getElementById('main-nav-toggle').addEventListener('click', function () {
+            var header = document.getElementById('header');
+            if (header.classList.contains('mobile-on')) {
+                header.classList.remove('mobile-on');
+            } else {
+                header.classList.add('mobile-on');
+            }
+        });
+    </script>
+</footer>
+
+</div>
+</body>
+</html>

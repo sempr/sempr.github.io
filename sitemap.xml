@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://sempr.github.io/posts/</loc>
+    <lastmod>2019-09-16T12:39:20+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/posts/weixin-bot-2/</loc>
+    <lastmod>2019-09-16T12:39:20+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/</loc>
+    <lastmod>2019-09-16T12:39:20+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/posts/weixin-bot/</loc>
+    <lastmod>2019-09-16T10:52:36+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/posts/fix-broken-virtualenv-python/</loc>
+    <lastmod>2018-05-15T15:08:24+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/posts/docker_with_iptables/</loc>
+    <lastmod>2018-03-31T10:12:14+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/posts/hugo_travisci_github_pages/</loc>
+    <lastmod>2018-03-25T20:04:47+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/posts/mtr_none_root_mac/</loc>
+    <lastmod>2017-06-26T16:17:45+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/posts/mongodb_index_hint/</loc>
+    <lastmod>2017-06-25T16:16:32+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/posts/pillow_dup_opacity/</loc>
+    <lastmod>2017-06-18T16:12:16+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/posts/the_fucking_busybox/</loc>
+    <lastmod>2016-04-18T11:39:50+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/posts/random_password/</loc>
+    <lastmod>2016-02-29T08:49:25+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/posts/first/</loc>
+    <lastmod>2016-02-28T22:14:15+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://sempr.github.io/categories/</loc>
+  </url>
+  
+</urlset>

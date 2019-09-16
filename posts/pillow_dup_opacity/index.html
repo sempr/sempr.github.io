@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pillow给图片打水印透明度叠加问题 // 瞎扯中的山坡驴</title>
+
+        <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="description" content="山坡驴真的在瞎扯啊瞎扯啊瞎扯。。。">
+    <meta name="keywords" content="">
+    <meta name="author" content="Sempr Wang">
+        <meta property="og:title" content="Pillow给图片打水印透明度叠加问题" />
+    <meta property="og:description" content="山坡驴真的在瞎扯啊瞎扯啊瞎扯。。。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://sempr.github.io/posts/pillow_dup_opacity/" />
+    
+
+    <link href="" rel="alternate" type="application/rss+xml" title="瞎扯中的山坡驴" />
+    <link rel="shortcut icon" href="https://sempr.github.io/favicon.png">
+
+    <link href="https://sempr.github.io/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+    <link href="https://sempr.github.io/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://sempr.github.io/css/style.css">
+
+    <meta name="generator" content="Hugo 0.58.2" />
+</head>
+
+
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div id="header-inner" class="inner">
+            <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+            <a id="logo" class="logo-text" href="https://sempr.github.io/">瞎扯中的山坡驴</a>
+            <nav id="main-nav">
+                
+            </nav>
+            <nav id="sub-nav">
+                <div id="search-form-wrap">
+                </div>
+            </nav>
+        </div>
+    </div>
+</header>
+
+    <section id="main" class="outer">
+        <article class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        <header class="article-header">
+            <h1 class="article-title" itemprop="name">Pillow给图片打水印透明度叠加问题</h1>
+        </header>
+        
+        <div class="article-meta">
+            <a href="https://sempr.github.io/posts/pillow_dup_opacity/" class="article-date">
+                <time datetime='2017-06-18T16:12:16.000&#43;08:00' itemprop="datePublished">2017-06-18</time>
+            </a>
+            
+            
+            
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <p>博主在给图片打透明水印的时候，发现了一个很诡异的现象，明明透明度的设置是0.8，但处理完的图片的透明度和实际上css在网页上渲染出来的透明度用肉眼就能看得出来是完全不一样的两个透明度，一直很疑惑，后来看代码并且查看Pillow文档才发现了其中的玄机。</p>
+
+<p>参看<a href="http://pillow.readthedocs.io/en/4.1.x/reference/Image.html#PIL.Image.Image.paste">Image.paste教程链接</a></p>
+
+<p>其中是这么写的</p>
+
+<pre><code>Image.paste(im, box=None, mask=None)
+Pastes another image into this image. The box argument is either a 2-tuple giving the upper left corner, a 4-tuple defining the left, upper, right, and lower pixel coordinate, or None (same as (0, 0)). If a 4-tuple is given, the size of the pasted image must match the size of the region.
+
+If the modes don’t match, the pasted image is converted to the mode of this image (see the convert() method for details).
+Instead of an image, the source can be a integer or tuple containing pixel values. The method then fills the region with the given color. When creating RGB images, you can also use color strings as supported by the ImageColor module.
+
+If a mask is given, this method updates only the regions indicated by the mask. You can use either “1”, “L” or “RGBA” images (in the latter case, the alpha band is used as mask). Where the mask is 255, the given image is copied as is. Where the mask is 0, the current value is preserved. Intermediate values will mix the two images together, including their alpha channels if they have them.
+</code></pre>
+
+<p>重点其实是在这个mask参数的作用上，而我之前的代码是这样写的</p>
+
+<pre><code>image0.paste(image1, box=box, mask=image1)
+</code></pre>
+
+<p>而<code>image1</code>在往图上贴之前做过了透明度的处理，它的透明度是0.8，而同时mask也使用了这张图片，它的透明度也是0.8，这就直接导致了贴的时候，被贴图片的透明参数被mask又叠加了一遍，最终成了0.64的透明度，怪不得比实际上的透明度要淡那么多</p>
+
+<p>那么既然知道了这个情况，那么解决方案也非常简单</p>
+
+<pre><code>image1_reduced = reduce_opacity(image1_original, 0.8)
+image0.paste(image1_reduced, box=box, mask=image1_original)
+
+</code></pre>
+
+<p>像上面这样做 就可以把问题解决了</p>
+
+<p>有些人会问，如果我把mask置空会怎么样，这个我也尝试过，如果被贴的图片本身有透明度信息的话，那部分区域会直接变成透明的，甚至把它下面的区域也透明掉 这个效果就没法接受了</p>
+
+        </div>
+
+        
+        
+        
+
+        
+
+
+        
+    </div>
+    <nav id="article-nav">
+    
+    <a href="https://sempr.github.io/posts/mongodb_index_hint/" id="article-nav-newer" class="article-nav-link-wrap">
+        <div class="article-nav-title"><span>&lt;</span>&nbsp;
+            Mongodb的count不走索引的问题及解决
+        </div>
+    </a>
+    
+    
+    <a href="https://sempr.github.io/posts/the_fucking_busybox/" id="article-nav-older" class="article-nav-link-wrap">
+        <div class="article-nav-title">不靠谱的busybox&nbsp;<span>&gt;</span></div>
+    </a>
+    
+</nav>
+
+</article>
+
+        
+    </section>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2019 瞎扯中的山坡驴
+            <br />
+            Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos" target="_blank">Minos</a>
+        </div>
+    </div>
+    
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow-night.min.css" integrity="sha256-2wL88NKUqvJi/ExflDzkzUumjUM73mcK2gBvBBeLvTk=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js" integrity="sha256-KbfTjB0WZ8vvXngdpJGY3Yp3xKk+tttbqClO11anCIU=" crossorigin="anonymous"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script>
+        document.getElementById('main-nav-toggle').addEventListener('click', function () {
+            var header = document.getElementById('header');
+            if (header.classList.contains('mobile-on')) {
+                header.classList.remove('mobile-on');
+            } else {
+                header.classList.add('mobile-on');
+            }
+        });
+    </script>
+</footer>
+
+</div>
+</body>
+</html>

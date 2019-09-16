@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MTR v0.92 在mac下的非root帐号下使用 // 瞎扯中的山坡驴</title>
+
+        <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="description" content="山坡驴真的在瞎扯啊瞎扯啊瞎扯。。。">
+    <meta name="keywords" content="">
+    <meta name="author" content="Sempr Wang">
+        <meta property="og:title" content="MTR v0.92 在mac下的非root帐号下使用" />
+    <meta property="og:description" content="山坡驴真的在瞎扯啊瞎扯啊瞎扯。。。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://sempr.github.io/posts/mtr_none_root_mac/" />
+    
+
+    <link href="" rel="alternate" type="application/rss+xml" title="瞎扯中的山坡驴" />
+    <link rel="shortcut icon" href="https://sempr.github.io/favicon.png">
+
+    <link href="https://sempr.github.io/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+    <link href="https://sempr.github.io/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://sempr.github.io/css/style.css">
+
+    <meta name="generator" content="Hugo 0.58.2" />
+</head>
+
+
+<body>
+<div id="container">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div id="header-inner" class="inner">
+            <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+            <a id="logo" class="logo-text" href="https://sempr.github.io/">瞎扯中的山坡驴</a>
+            <nav id="main-nav">
+                
+            </nav>
+            <nav id="sub-nav">
+                <div id="search-form-wrap">
+                </div>
+            </nav>
+        </div>
+    </div>
+</header>
+
+    <section id="main" class="outer">
+        <article class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        <header class="article-header">
+            <h1 class="article-title" itemprop="name">MTR v0.92 在mac下的非root帐号下使用</h1>
+        </header>
+        
+        <div class="article-meta">
+            <a href="https://sempr.github.io/posts/mtr_none_root_mac/" class="article-date">
+                <time datetime='2017-06-26T16:17:45.000&#43;08:00' itemprop="datePublished">2017-06-26</time>
+            </a>
+            
+            
+            
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <p><code>mtr</code> 是一个非常好用的 <code>ping+traceroute</code> 的工具，在MacOS 下 升级了0.92版本之后，参照网上说的使用<code>chmod u+s</code>的方式反复多次都无法让它在日常帐号下使用，必须得sudo才能好，每次都会报 <code>mtr should not run suid</code>错误，非常的疑惑，网上也无法查得到解决办法。所以只能去看看代码里发生了什么事情。</p>
+
+<p>从代码里看，mtr.c 中 直接有这么一个片段</p>
+
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">723
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">724
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">725
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">726
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">727
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">728
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">729
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">730
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">/*
+</span><span style="color:#75715e">        mtr used to be suid root.  It should not be with this version.
+</span><span style="color:#75715e">        We&#39;ll check so that we can notify people using installation
+</span><span style="color:#75715e">        mechanisms with obsolete assumptions.
+</span><span style="color:#75715e">      */</span>
+     <span style="color:#66d9ef">if</span> ((geteuid() <span style="color:#f92672">!=</span> getuid()) <span style="color:#f92672">||</span> (getegid() <span style="color:#f92672">!=</span> getgid())) {
+         error(EXIT_FAILURE, errno, <span style="color:#e6db74">&#34;mtr should not run suid&#34;</span>);
+     }</code></pre></td></tr></table>
+</div>
+</div>
+
+<p>明显的就是禁止了通过 <code>chmod u+s</code> 的方式执行<code>mtr</code>了</p>
+
+<p>接下来要怎么办呢？以前允许了现在不行了肯定是有 <em>安全</em> 原因的，查查相关说明文档再看看咯。于是我找到了下面这一段:</p>
+
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#ae81ff">3.</span> Make mtr<span style="color:#f92672">-</span>packet a setuid<span style="color:#f92672">-</span>root binary.
+
+The mtr<span style="color:#f92672">-</span>packet binary can be made setuid<span style="color:#f92672">-</span>root, which is what <span style="color:#e6db74">&#34;make install&#34;</span>
+does by <span style="color:#66d9ef">default</span>.
+
+When mtr<span style="color:#f92672">-</span>packet is installed as suid<span style="color:#f92672">-</span>root, some concern over security is
+justified.  mtr<span style="color:#f92672">-</span>packet does the following two things after it is launched:</code></pre></td></tr></table>
+</div>
+</div>
+
+<p>也就是说 mtr 不允许 setuid-root 但是 mtr-packet 允许，推测是因为以前的做法可能有安全隐患，所以只把需要依赖root的逻辑放到了mtr-packet里，把不需要root但是给了root可能带来安全问题的部分继续放在mtr中使用普通帐户执行，执行mtr的时候再调用mtr-packet，通过 suid-root 的方式获得root的权限。</p>
+
+<p>这个事情其实很好的展示了开发中的<code>最小权限原则</code>，只给出必须的授权，不给出额外的授权。</p>
+
+        </div>
+
+        
+        
+        
+
+        
+
+
+        
+    </div>
+    <nav id="article-nav">
+    
+    <a href="https://sempr.github.io/posts/hugo_travisci_github_pages/" id="article-nav-newer" class="article-nav-link-wrap">
+        <div class="article-nav-title"><span>&lt;</span>&nbsp;
+            利用Travis CI自动部署hugo生成的静态页面到github pages
+        </div>
+    </a>
+    
+    
+    <a href="https://sempr.github.io/posts/mongodb_index_hint/" id="article-nav-older" class="article-nav-link-wrap">
+        <div class="article-nav-title">Mongodb的count不走索引的问题及解决&nbsp;<span>&gt;</span></div>
+    </a>
+    
+</nav>
+
+</article>
+
+        
+    </section>
+    <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2019 瞎扯中的山坡驴
+            <br />
+            Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> with theme <a href="https://github.com/carsonip/hugo-theme-minos" target="_blank">Minos</a>
+        </div>
+    </div>
+    
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow-night.min.css" integrity="sha256-2wL88NKUqvJi/ExflDzkzUumjUM73mcK2gBvBBeLvTk=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js" integrity="sha256-KbfTjB0WZ8vvXngdpJGY3Yp3xKk+tttbqClO11anCIU=" crossorigin="anonymous"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+    <script>
+        document.getElementById('main-nav-toggle').addEventListener('click', function () {
+            var header = document.getElementById('header');
+            if (header.classList.contains('mobile-on')) {
+                header.classList.remove('mobile-on');
+            } else {
+                header.classList.add('mobile-on');
+            }
+        });
+    </script>
+</footer>
+
+</div>
+</body>
+</html>
