@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>不靠谱的busybox | 瞎扯中的山坡驴</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="山坡驴最近用docker搭了一个公司的开发环境(python)，自我感觉挺良好的，但是同事不停的向我抱怨经常改了代码之后，python自带的auto reload会执行，但是执行完了之后修改并没有生效，山坡驴同学于是决定去探究一下到底是个什么鬼……
+简单说一下这个环境的状况，山坡驴是在Mac下面开发的，用docker-machine和virtualbox跑的docker，从最外层到最里层分别是
+Mac(macos) -&gt; virtualbox(tinylinux/boot2docker) -&gt; docker(alpine) 代码在Mac下面编辑，透过两层文件映射到最终的执行环境中，山坡驴觉得一定是这两层文件的映射出了问题，下面我开始查看到底是个什么原因导致了这样的问题，我先从中间这一层入手。
+在最外层执行了一句 for i in `seq 1 100`; do echo $i; echo $i&gt;&gt;test.log; sleep 3;done
+使用 docker-machine ssh machine-name 进入到中间一层查看，在tail -f test.log的时候居然神奇的发现 内容居然不更新了……更新了……新了……了……，执行wc -l  和 cat test.log | wc -l发现结果居然还不一样，用vi命令打开文件也正常，md5sum出来的文件md5值也和外面一样的，这是什么鬼？
+我开始怀疑是不是virtualbox的坑，因为之前有见过一个nginx的sendfile的坑，再加上virtualbox一直以来也是存在着各种各样的bug，而且公司的另外一个团队也在这么用，如果我遇上这个坑了，那么他们应该也一样会遇到的，找他们咨询了一下，他们一脸懵懵的表示没有过啊，一直好好的，非常正常，他们使用的PHP语言也是执行时才解释的语言，我遇到的问题他们应该一样会遇到的才是啊，难道在PHP是最好的语言的光环之下，灵异事件自动退散？这不可能……
+重新打包了一个centos的镜象，直接进到第三层，docker container里面测试，发现居然全都是好的，返回到第二次，还是一样的问题，如果说是vbox的锅，那么为什么中间层错了最里层居然还是对的，这不应该，再仔细想了想，tinylinux和alpine默认的shell都是busybox，是不是这货的锅呢？带着这个疑问我去alpine的docker container里做测试，果然还是出错的，那这样子结果就明了了，busybox在这种情况下无法追踪到文件的修改，所以在这样的测试环境下面，还是老老实实的用bash以及各类unix工具吧，慎用busybox。
+完毕">
+    <meta name="generator" content="Hugo 0.91.2" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+<link rel="stylesheet" href="https://sempr.github.io/ananke/css/main.min.css" >
+
+
+
+    
+    
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="不靠谱的busybox" />
+<meta property="og:description" content="山坡驴最近用docker搭了一个公司的开发环境(python)，自我感觉挺良好的，但是同事不停的向我抱怨经常改了代码之后，python自带的auto reload会执行，但是执行完了之后修改并没有生效，山坡驴同学于是决定去探究一下到底是个什么鬼……
+简单说一下这个环境的状况，山坡驴是在Mac下面开发的，用docker-machine和virtualbox跑的docker，从最外层到最里层分别是
+Mac(macos) -&gt; virtualbox(tinylinux/boot2docker) -&gt; docker(alpine) 代码在Mac下面编辑，透过两层文件映射到最终的执行环境中，山坡驴觉得一定是这两层文件的映射出了问题，下面我开始查看到底是个什么原因导致了这样的问题，我先从中间这一层入手。
+在最外层执行了一句 for i in `seq 1 100`; do echo $i; echo $i&gt;&gt;test.log; sleep 3;done
+使用 docker-machine ssh machine-name 进入到中间一层查看，在tail -f test.log的时候居然神奇的发现 内容居然不更新了……更新了……新了……了……，执行wc -l  和 cat test.log | wc -l发现结果居然还不一样，用vi命令打开文件也正常，md5sum出来的文件md5值也和外面一样的，这是什么鬼？
+我开始怀疑是不是virtualbox的坑，因为之前有见过一个nginx的sendfile的坑，再加上virtualbox一直以来也是存在着各种各样的bug，而且公司的另外一个团队也在这么用，如果我遇上这个坑了，那么他们应该也一样会遇到的，找他们咨询了一下，他们一脸懵懵的表示没有过啊，一直好好的，非常正常，他们使用的PHP语言也是执行时才解释的语言，我遇到的问题他们应该一样会遇到的才是啊，难道在PHP是最好的语言的光环之下，灵异事件自动退散？这不可能……
+重新打包了一个centos的镜象，直接进到第三层，docker container里面测试，发现居然全都是好的，返回到第二次，还是一样的问题，如果说是vbox的锅，那么为什么中间层错了最里层居然还是对的，这不应该，再仔细想了想，tinylinux和alpine默认的shell都是busybox，是不是这货的锅呢？带着这个疑问我去alpine的docker container里做测试，果然还是出错的，那这样子结果就明了了，busybox在这种情况下无法追踪到文件的修改，所以在这样的测试环境下面，还是老老实实的用bash以及各类unix工具吧，慎用busybox。
+完毕" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://sempr.github.io/posts/the_fucking_busybox/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2016-04-18T11:39:50+08:00" />
+<meta property="article:modified_time" content="2016-04-18T11:39:50+08:00" />
+
+<meta itemprop="name" content="不靠谱的busybox">
+<meta itemprop="description" content="山坡驴最近用docker搭了一个公司的开发环境(python)，自我感觉挺良好的，但是同事不停的向我抱怨经常改了代码之后，python自带的auto reload会执行，但是执行完了之后修改并没有生效，山坡驴同学于是决定去探究一下到底是个什么鬼……
+简单说一下这个环境的状况，山坡驴是在Mac下面开发的，用docker-machine和virtualbox跑的docker，从最外层到最里层分别是
+Mac(macos) -&gt; virtualbox(tinylinux/boot2docker) -&gt; docker(alpine) 代码在Mac下面编辑，透过两层文件映射到最终的执行环境中，山坡驴觉得一定是这两层文件的映射出了问题，下面我开始查看到底是个什么原因导致了这样的问题，我先从中间这一层入手。
+在最外层执行了一句 for i in `seq 1 100`; do echo $i; echo $i&gt;&gt;test.log; sleep 3;done
+使用 docker-machine ssh machine-name 进入到中间一层查看，在tail -f test.log的时候居然神奇的发现 内容居然不更新了……更新了……新了……了……，执行wc -l  和 cat test.log | wc -l发现结果居然还不一样，用vi命令打开文件也正常，md5sum出来的文件md5值也和外面一样的，这是什么鬼？
+我开始怀疑是不是virtualbox的坑，因为之前有见过一个nginx的sendfile的坑，再加上virtualbox一直以来也是存在着各种各样的bug，而且公司的另外一个团队也在这么用，如果我遇上这个坑了，那么他们应该也一样会遇到的，找他们咨询了一下，他们一脸懵懵的表示没有过啊，一直好好的，非常正常，他们使用的PHP语言也是执行时才解释的语言，我遇到的问题他们应该一样会遇到的才是啊，难道在PHP是最好的语言的光环之下，灵异事件自动退散？这不可能……
+重新打包了一个centos的镜象，直接进到第三层，docker container里面测试，发现居然全都是好的，返回到第二次，还是一样的问题，如果说是vbox的锅，那么为什么中间层错了最里层居然还是对的，这不应该，再仔细想了想，tinylinux和alpine默认的shell都是busybox，是不是这货的锅呢？带着这个疑问我去alpine的docker container里做测试，果然还是出错的，那这样子结果就明了了，busybox在这种情况下无法追踪到文件的修改，所以在这样的测试环境下面，还是老老实实的用bash以及各类unix工具吧，慎用busybox。
+完毕"><meta itemprop="datePublished" content="2016-04-18T11:39:50+08:00" />
+<meta itemprop="dateModified" content="2016-04-18T11:39:50+08:00" />
+<meta itemprop="wordCount" content="43">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="不靠谱的busybox"/>
+<meta name="twitter:description" content="山坡驴最近用docker搭了一个公司的开发环境(python)，自我感觉挺良好的，但是同事不停的向我抱怨经常改了代码之后，python自带的auto reload会执行，但是执行完了之后修改并没有生效，山坡驴同学于是决定去探究一下到底是个什么鬼……
+简单说一下这个环境的状况，山坡驴是在Mac下面开发的，用docker-machine和virtualbox跑的docker，从最外层到最里层分别是
+Mac(macos) -&gt; virtualbox(tinylinux/boot2docker) -&gt; docker(alpine) 代码在Mac下面编辑，透过两层文件映射到最终的执行环境中，山坡驴觉得一定是这两层文件的映射出了问题，下面我开始查看到底是个什么原因导致了这样的问题，我先从中间这一层入手。
+在最外层执行了一句 for i in `seq 1 100`; do echo $i; echo $i&gt;&gt;test.log; sleep 3;done
+使用 docker-machine ssh machine-name 进入到中间一层查看，在tail -f test.log的时候居然神奇的发现 内容居然不更新了……更新了……新了……了……，执行wc -l  和 cat test.log | wc -l发现结果居然还不一样，用vi命令打开文件也正常，md5sum出来的文件md5值也和外面一样的，这是什么鬼？
+我开始怀疑是不是virtualbox的坑，因为之前有见过一个nginx的sendfile的坑，再加上virtualbox一直以来也是存在着各种各样的bug，而且公司的另外一个团队也在这么用，如果我遇上这个坑了，那么他们应该也一样会遇到的，找他们咨询了一下，他们一脸懵懵的表示没有过啊，一直好好的，非常正常，他们使用的PHP语言也是执行时才解释的语言，我遇到的问题他们应该一样会遇到的才是啊，难道在PHP是最好的语言的光环之下，灵异事件自动退散？这不可能……
+重新打包了一个centos的镜象，直接进到第三层，docker container里面测试，发现居然全都是好的，返回到第二次，还是一样的问题，如果说是vbox的锅，那么为什么中间层错了最里层居然还是对的，这不应该，再仔细想了想，tinylinux和alpine默认的shell都是busybox，是不是这货的锅呢？带着这个疑问我去alpine的docker container里做测试，果然还是出错的，那这样子结果就明了了，busybox在这种情况下无法追踪到文件的修改，所以在这样的测试环境下面，还是老老实实的用bash以及各类unix工具吧，慎用busybox。
+完毕"/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="https://sempr.github.io/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        瞎扯中的山坡驴
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+<div class="ananke-socials">
+  
+</div>
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked">
+          
+        POSTS
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">不靠谱的busybox</h1>
+      
+      <p class="tracked">
+          By <strong>
+          
+              Sempr Wang
+          
+          </strong>
+      </p>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2016-04-18T11:39:50+08:00">April 18, 2016</time>
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links nested-img mid-gray pr4-l w-two-thirds-l"><p>山坡驴最近用docker搭了一个公司的开发环境(python)，自我感觉挺良好的，但是同事不停的向我抱怨经常改了代码之后，python自带的auto reload会执行，但是执行完了之后修改并没有生效，山坡驴同学于是决定去探究一下到底是个什么鬼……</p>
+<p>简单说一下这个环境的状况，山坡驴是在Mac下面开发的，用docker-machine和virtualbox跑的docker，从最外层到最里层分别是</p>
+<pre tabindex="0"><code>Mac(macos) -&gt; virtualbox(tinylinux/boot2docker) -&gt; docker(alpine)
+</code></pre><p>代码在Mac下面编辑，透过两层文件映射到最终的执行环境中，山坡驴觉得一定是这两层文件的映射出了问题，下面我开始查看到底是个什么原因导致了这样的问题，我先从中间这一层入手。</p>
+<p>在最外层执行了一句 <code>for i in `seq 1 100`; do echo $i; echo $i&gt;&gt;test.log; sleep 3;done</code></p>
+<p>使用 <code>docker-machine ssh machine-name</code> 进入到中间一层查看，在<code>tail -f test.log</code>的时候居然神奇的发现 内容居然不更新了……更新了……新了……了……，执行<code>wc -l </code> 和 <code>cat test.log | wc -l</code>发现结果居然还不一样，用vi命令打开文件也正常，md5sum出来的文件md5值也和外面一样的，这是什么鬼？</p>
+<p>我开始怀疑是不是virtualbox的坑，因为之前有见过一个nginx的sendfile的坑，再加上virtualbox一直以来也是存在着各种各样的bug，而且公司的另外一个团队也在这么用，如果我遇上这个坑了，那么他们应该也一样会遇到的，找他们咨询了一下，他们一脸懵懵的表示没有过啊，一直好好的，非常正常，他们使用的PHP语言也是执行时才解释的语言，我遇到的问题他们应该一样会遇到的才是啊，难道在<code>PHP是最好的语言</code>的光环之下，灵异事件自动退散？这不可能……</p>
+<p>重新打包了一个centos的镜象，直接进到第三层，docker container里面测试，发现居然全都是好的，返回到第二次，还是一样的问题，如果说是vbox的锅，那么为什么中间层错了最里层居然还是对的，这不应该，再仔细想了想，tinylinux和alpine默认的shell都是busybox，是不是这货的锅呢？带着这个疑问我去alpine的docker container里做测试，果然还是出错的，那这样子结果就明了了，busybox在这种情况下无法追踪到文件的修改，所以在这样的测试环境下面，还是老老实实的用bash以及各类unix工具吧，慎用busybox。</p>
+<p>完毕</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://sempr.github.io/" >
+    &copy;  瞎扯中的山坡驴 2022 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+</div></div>
+  </div>
+</footer>
+
+  </body>
+</html>

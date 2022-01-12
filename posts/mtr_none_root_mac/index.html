@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>MTR v0.92(以及后续版本) 在mac下的非root帐号下使用 | 瞎扯中的山坡驴</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="长话短说，解决方法是
+cd /usr/local/Cellar/mtr/0.94_1/sbin/ sudo chmod u&#43;s mtr-packet sudo chown root mtr-packet # 确保是这样一个状态 $ ls -lh total 184K -r-xr-xr-x 1 Sempr 110K Jan 2 22:35 mtr -r-sr-xr-x 1 root 71K Sep 24 2020 mtr-packet mtr 是一个非常好用的 ping&#43;traceroute 的工具，在 MacOS 下 升级了 0.92 版本之后，参照网上说的使用chmod u&#43;s 的方式反复多次都无法让它在日常帐号下使用，必须得 sudo 才能好，每次都会报 mtr should not run suid错误，非常的疑惑，网上也无法查得到解决办法。所以只能去看看代码里发生了什么事情。
+从代码里看，mtr.c 中 直接有这么一个片段
+723 724 725 726 727 728 729 730  /_ mtr used to be suid root.">
+    <meta name="generator" content="Hugo 0.91.2" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+<link rel="stylesheet" href="https://sempr.github.io/ananke/css/main.min.css" >
+
+
+
+    
+    
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="MTR v0.92(以及后续版本) 在mac下的非root帐号下使用" />
+<meta property="og:description" content="长话短说，解决方法是
+cd /usr/local/Cellar/mtr/0.94_1/sbin/ sudo chmod u&#43;s mtr-packet sudo chown root mtr-packet # 确保是这样一个状态 $ ls -lh total 184K -r-xr-xr-x 1 Sempr 110K Jan 2 22:35 mtr -r-sr-xr-x 1 root 71K Sep 24 2020 mtr-packet mtr 是一个非常好用的 ping&#43;traceroute 的工具，在 MacOS 下 升级了 0.92 版本之后，参照网上说的使用chmod u&#43;s 的方式反复多次都无法让它在日常帐号下使用，必须得 sudo 才能好，每次都会报 mtr should not run suid错误，非常的疑惑，网上也无法查得到解决办法。所以只能去看看代码里发生了什么事情。
+从代码里看，mtr.c 中 直接有这么一个片段
+723 724 725 726 727 728 729 730  /_ mtr used to be suid root." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://sempr.github.io/posts/mtr_none_root_mac/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2017-06-26T16:17:45+08:00" />
+<meta property="article:modified_time" content="2017-06-26T16:17:45+08:00" />
+
+<meta itemprop="name" content="MTR v0.92(以及后续版本) 在mac下的非root帐号下使用">
+<meta itemprop="description" content="长话短说，解决方法是
+cd /usr/local/Cellar/mtr/0.94_1/sbin/ sudo chmod u&#43;s mtr-packet sudo chown root mtr-packet # 确保是这样一个状态 $ ls -lh total 184K -r-xr-xr-x 1 Sempr 110K Jan 2 22:35 mtr -r-sr-xr-x 1 root 71K Sep 24 2020 mtr-packet mtr 是一个非常好用的 ping&#43;traceroute 的工具，在 MacOS 下 升级了 0.92 版本之后，参照网上说的使用chmod u&#43;s 的方式反复多次都无法让它在日常帐号下使用，必须得 sudo 才能好，每次都会报 mtr should not run suid错误，非常的疑惑，网上也无法查得到解决办法。所以只能去看看代码里发生了什么事情。
+从代码里看，mtr.c 中 直接有这么一个片段
+723 724 725 726 727 728 729 730  /_ mtr used to be suid root."><meta itemprop="datePublished" content="2017-06-26T16:17:45+08:00" />
+<meta itemprop="dateModified" content="2017-06-26T16:17:45+08:00" />
+<meta itemprop="wordCount" content="191">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="MTR v0.92(以及后续版本) 在mac下的非root帐号下使用"/>
+<meta name="twitter:description" content="长话短说，解决方法是
+cd /usr/local/Cellar/mtr/0.94_1/sbin/ sudo chmod u&#43;s mtr-packet sudo chown root mtr-packet # 确保是这样一个状态 $ ls -lh total 184K -r-xr-xr-x 1 Sempr 110K Jan 2 22:35 mtr -r-sr-xr-x 1 root 71K Sep 24 2020 mtr-packet mtr 是一个非常好用的 ping&#43;traceroute 的工具，在 MacOS 下 升级了 0.92 版本之后，参照网上说的使用chmod u&#43;s 的方式反复多次都无法让它在日常帐号下使用，必须得 sudo 才能好，每次都会报 mtr should not run suid错误，非常的疑惑，网上也无法查得到解决办法。所以只能去看看代码里发生了什么事情。
+从代码里看，mtr.c 中 直接有这么一个片段
+723 724 725 726 727 728 729 730  /_ mtr used to be suid root."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="https://sempr.github.io/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        瞎扯中的山坡驴
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+<div class="ananke-socials">
+  
+</div>
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked">
+          
+        POSTS
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">MTR v0.92(以及后续版本) 在mac下的非root帐号下使用</h1>
+      
+      <p class="tracked">
+          By <strong>
+          
+              Sempr Wang
+          
+          </strong>
+      </p>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2017-06-26T16:17:45+08:00">June 26, 2017</time>
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links nested-img mid-gray pr4-l w-two-thirds-l"><p>长话短说，解决方法是</p>
+<pre tabindex="0"><code>cd /usr/local/Cellar/mtr/0.94_1/sbin/
+sudo chmod u+s mtr-packet
+sudo chown root mtr-packet
+
+# 确保是这样一个状态
+$ ls -lh
+total 184K
+-r-xr-xr-x 1 Sempr 110K Jan  2 22:35 mtr
+-r-sr-xr-x 1 root   71K Sep 24  2020 mtr-packet
+</code></pre><p><code>mtr</code> 是一个非常好用的 <code>ping+traceroute</code> 的工具，在 MacOS 下 升级了 0.92 版本之后，参照网上说的使用<code>chmod u+s </code>的方式反复多次都无法让它在日常帐号下使用，必须得 sudo 才能好，每次都会报 <code>mtr should not run suid</code>错误，非常的疑惑，网上也无法查得到解决办法。所以只能去看看代码里发生了什么事情。</p>
+<p>从代码里看，mtr.c 中 直接有这么一个片段</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">723
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">724
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">725
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">726
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">727
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">728
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">729
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">730
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#f92672">/</span>_
+mtr used to be suid root. It should not be with this version.
+We<span style="color:#960050;background-color:#1e0010">&#39;</span>ll check so that we can notify people using installation
+mechanisms with obsolete assumptions.
+_<span style="color:#f92672">/</span>
+<span style="color:#66d9ef">if</span> ((geteuid() <span style="color:#f92672">!=</span> getuid()) <span style="color:#f92672">||</span> (getegid() <span style="color:#f92672">!=</span> getgid())) {
+error(EXIT_FAILURE, errno, <span style="color:#e6db74">&#34;mtr should not run suid&#34;</span>);
+}</code></pre></td></tr></table>
+</div>
+</div>
+<p>明显的就是禁止了通过 <code>chmod u+s</code> 的方式执行<code>mtr</code>了</p>
+<p>接下来要怎么办呢？以前允许了现在不行了肯定是有 <em>安全</em> 原因的，查查相关说明文档再看看咯。于是我找到了下面这一段:</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"> <span style="color:#ae81ff">3.</span> Make mtr<span style="color:#f92672">-</span>packet a setuid<span style="color:#f92672">-</span>root binary.
+
+The mtr<span style="color:#f92672">-</span>packet binary can be made setuid<span style="color:#f92672">-</span>root, which is what <span style="color:#e6db74">&#34;make install&#34;</span>
+does by <span style="color:#66d9ef">default</span>.
+
+When mtr<span style="color:#f92672">-</span>packet is installed as suid<span style="color:#f92672">-</span>root, some concern over security is
+justified. mtr<span style="color:#f92672">-</span>packet does the following two things after it is launched:</code></pre></td></tr></table>
+</div>
+</div>
+<p>也就是说 mtr 不允许 setuid-root 但是 mtr-packet 允许，推测是因为以前的做法可能有安全隐患，所以只把需要依赖 root 的逻辑放到了 mtr-packet 里，把不需要 root 但是给了 root 可能带来安全问题的部分继续放在 mtr 中使用普通帐户执行，执行 mtr 的时候再调用 mtr-packet，通过 suid-root 的方式获得 root 的权限。</p>
+<p>这个事情其实很好的展示了开发中的<code>最小权限原则</code>，只给出必须的授权，不给出额外的授权。</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://sempr.github.io/" >
+    &copy;  瞎扯中的山坡驴 2022 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+</div></div>
+  </div>
+</footer>
+
+  </body>
+</html>

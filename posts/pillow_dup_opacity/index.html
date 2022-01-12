@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Pillow给图片打水印透明度叠加问题 | 瞎扯中的山坡驴</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="博主在给图片打透明水印的时候，发现了一个很诡异的现象，明明透明度的设置是0.8，但处理完的图片的透明度和实际上css在网页上渲染出来的透明度用肉眼就能看得出来是完全不一样的两个透明度，一直很疑惑，后来看代码并且查看Pillow文档才发现了其中的玄机。
+参看Image.paste教程链接
+其中是这么写的
+Image.paste(im, box=None, mask=None) Pastes another image into this image. The box argument is either a 2-tuple giving the upper left corner, a 4-tuple defining the left, upper, right, and lower pixel coordinate, or None (same as (0, 0)). If a 4-tuple is given, the size of the pasted image must match the size of the region. If the modes don’t match, the pasted image is converted to the mode of this image (see the convert() method for details).">
+    <meta name="generator" content="Hugo 0.91.2" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+<link rel="stylesheet" href="https://sempr.github.io/ananke/css/main.min.css" >
+
+
+
+    
+    
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Pillow给图片打水印透明度叠加问题" />
+<meta property="og:description" content="博主在给图片打透明水印的时候，发现了一个很诡异的现象，明明透明度的设置是0.8，但处理完的图片的透明度和实际上css在网页上渲染出来的透明度用肉眼就能看得出来是完全不一样的两个透明度，一直很疑惑，后来看代码并且查看Pillow文档才发现了其中的玄机。
+参看Image.paste教程链接
+其中是这么写的
+Image.paste(im, box=None, mask=None) Pastes another image into this image. The box argument is either a 2-tuple giving the upper left corner, a 4-tuple defining the left, upper, right, and lower pixel coordinate, or None (same as (0, 0)). If a 4-tuple is given, the size of the pasted image must match the size of the region. If the modes don’t match, the pasted image is converted to the mode of this image (see the convert() method for details)." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://sempr.github.io/posts/pillow_dup_opacity/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2017-06-18T16:12:16+08:00" />
+<meta property="article:modified_time" content="2017-06-18T16:12:16+08:00" />
+
+<meta itemprop="name" content="Pillow给图片打水印透明度叠加问题">
+<meta itemprop="description" content="博主在给图片打透明水印的时候，发现了一个很诡异的现象，明明透明度的设置是0.8，但处理完的图片的透明度和实际上css在网页上渲染出来的透明度用肉眼就能看得出来是完全不一样的两个透明度，一直很疑惑，后来看代码并且查看Pillow文档才发现了其中的玄机。
+参看Image.paste教程链接
+其中是这么写的
+Image.paste(im, box=None, mask=None) Pastes another image into this image. The box argument is either a 2-tuple giving the upper left corner, a 4-tuple defining the left, upper, right, and lower pixel coordinate, or None (same as (0, 0)). If a 4-tuple is given, the size of the pasted image must match the size of the region. If the modes don’t match, the pasted image is converted to the mode of this image (see the convert() method for details)."><meta itemprop="datePublished" content="2017-06-18T16:12:16+08:00" />
+<meta itemprop="dateModified" content="2017-06-18T16:12:16+08:00" />
+<meta itemprop="wordCount" content="212">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Pillow给图片打水印透明度叠加问题"/>
+<meta name="twitter:description" content="博主在给图片打透明水印的时候，发现了一个很诡异的现象，明明透明度的设置是0.8，但处理完的图片的透明度和实际上css在网页上渲染出来的透明度用肉眼就能看得出来是完全不一样的两个透明度，一直很疑惑，后来看代码并且查看Pillow文档才发现了其中的玄机。
+参看Image.paste教程链接
+其中是这么写的
+Image.paste(im, box=None, mask=None) Pastes another image into this image. The box argument is either a 2-tuple giving the upper left corner, a 4-tuple defining the left, upper, right, and lower pixel coordinate, or None (same as (0, 0)). If a 4-tuple is given, the size of the pasted image must match the size of the region. If the modes don’t match, the pasted image is converted to the mode of this image (see the convert() method for details)."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="https://sempr.github.io/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        瞎扯中的山坡驴
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+<div class="ananke-socials">
+  
+</div>
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked">
+          
+        POSTS
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">Pillow给图片打水印透明度叠加问题</h1>
+      
+      <p class="tracked">
+          By <strong>
+          
+              Sempr Wang
+          
+          </strong>
+      </p>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2017-06-18T16:12:16+08:00">June 18, 2017</time>
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links nested-img mid-gray pr4-l w-two-thirds-l"><p>博主在给图片打透明水印的时候，发现了一个很诡异的现象，明明透明度的设置是0.8，但处理完的图片的透明度和实际上css在网页上渲染出来的透明度用肉眼就能看得出来是完全不一样的两个透明度，一直很疑惑，后来看代码并且查看Pillow文档才发现了其中的玄机。</p>
+<p>参看<a href="http://pillow.readthedocs.io/en/4.1.x/reference/Image.html#PIL.Image.Image.paste">Image.paste教程链接</a></p>
+<p>其中是这么写的</p>
+<pre tabindex="0"><code>Image.paste(im, box=None, mask=None)
+Pastes another image into this image. The box argument is either a 2-tuple giving the upper left corner, a 4-tuple defining the left, upper, right, and lower pixel coordinate, or None (same as (0, 0)). If a 4-tuple is given, the size of the pasted image must match the size of the region.
+
+If the modes don’t match, the pasted image is converted to the mode of this image (see the convert() method for details).
+Instead of an image, the source can be a integer or tuple containing pixel values. The method then fills the region with the given color. When creating RGB images, you can also use color strings as supported by the ImageColor module.
+
+If a mask is given, this method updates only the regions indicated by the mask. You can use either “1”, “L” or “RGBA” images (in the latter case, the alpha band is used as mask). Where the mask is 255, the given image is copied as is. Where the mask is 0, the current value is preserved. Intermediate values will mix the two images together, including their alpha channels if they have them.
+</code></pre><p>重点其实是在这个mask参数的作用上，而我之前的代码是这样写的</p>
+<pre tabindex="0"><code>image0.paste(image1, box=box, mask=image1)
+</code></pre><p>而<code>image1</code>在往图上贴之前做过了透明度的处理，它的透明度是0.8，而同时mask也使用了这张图片，它的透明度也是0.8，这就直接导致了贴的时候，被贴图片的透明参数被mask又叠加了一遍，最终成了0.64的透明度，怪不得比实际上的透明度要淡那么多</p>
+<p>那么既然知道了这个情况，那么解决方案也非常简单</p>
+<pre tabindex="0"><code>image1_reduced = reduce_opacity(image1_original, 0.8)
+image0.paste(image1_reduced, box=box, mask=image1_original)
+
+</code></pre><p>像上面这样做 就可以把问题解决了</p>
+<p>有些人会问，如果我把mask置空会怎么样，这个我也尝试过，如果被贴的图片本身有透明度信息的话，那部分区域会直接变成透明的，甚至把它下面的区域也透明掉 这个效果就没法接受了</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://sempr.github.io/" >
+    &copy;  瞎扯中的山坡驴 2022 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+</div></div>
+  </div>
+</footer>
+
+  </body>
+</html>

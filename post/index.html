@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>瞎扯中的山坡驴</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="山坡驴真的在瞎扯啊瞎扯啊瞎扯。。。">
+    <meta name="generator" content="Hugo 0.91.2" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+<link rel="stylesheet" href="https://sempr.github.io/ananke/css/main.min.css" >
+
+
+
+    
+    
+    
+      
+
+    
+
+    
+    
+      <link href="https://sempr.github.io/post/index.xml" rel="alternate" type="application/rss+xml" title="瞎扯中的山坡驴" />
+      <link href="https://sempr.github.io/post/index.xml" rel="feed" type="application/rss+xml" title="瞎扯中的山坡驴" />
+      
+    
+    
+    <meta property="og:title" content="Posts" />
+<meta property="og:description" content="山坡驴真的在瞎扯啊瞎扯啊瞎扯。。。" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://sempr.github.io/post/" />
+
+<meta itemprop="name" content="Posts">
+<meta itemprop="description" content="山坡驴真的在瞎扯啊瞎扯啊瞎扯。。。"><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Posts"/>
+<meta name="twitter:description" content="山坡驴真的在瞎扯啊瞎扯啊瞎扯。。。"/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+
+  <header>
+    <div class="pb3-m pb6-l bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="https://sempr.github.io/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        瞎扯中的山坡驴
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+<div class="ananke-socials">
+  
+</div>
+    </div>
+  </div>
+</nav>
+
+      <div class="tc-l pv3 ph3 ph4-ns">
+        <h1 class="f2 f-subheadline-l fw2 light-silver mb0 lh-title">
+          Posts
+        </h1>
+        
+      </div>
+    </div>
+  </header>
+
+
+    <main class="pb7" role="main">
+      
+
+  <article class="pa3 pa4-ns nested-copy-line-height nested-img">
+    <section class="cf ph3 ph5-l pv3 pv4-l f4 tc-l center measure-wide lh-copy mid-gray">
+      
+    </section>
+    <aside class="flex-ns flex-wrap justify-around mt5">
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        March 16, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://sempr.github.io/post/pillow_dup_opacity/" class="link black dim">
+        Pillow给图片打水印透明度叠加问题
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      博主在给图片打透明水印的时候，发现了一个很诡异的现象，明明透明度的设置是0.8，但处理完的图片的透明度和实际上css在网页上渲染出来的透明度用肉眼就能看得出来是完全不一样的两个透明度，一直很疑惑，后来看代码并且查看Pillow文档才发现了其中的玄机。
+参看Image.paste教程链接
+其中是这么写的
+Image.paste(im, box=None, mask=None) Pastes another image into this image. The box argument is either a 2-tuple giving the upper left corner, a 4-tuple defining the left, upper, right, and lower pixel coordinate, or None (same as (0, 0)). If a 4-tuple is given, the size of the pasted image must match the size of the region. If the modes don’t match, the pasted image is converted to the mode of this image (see the convert() method for details).
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        April 18, 2016
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://sempr.github.io/post/the_fucking_busybox/" class="link black dim">
+        不靠谱的busybox
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      山坡驴最近用docker搭了一个公司的开发环境(python)，自我感觉挺良好的，但是同事不停的向我抱怨经常改了代码之后，python自带的auto reload会执行，但是执行完了之后修改并没有生效，山坡驴同学于是决定去探究一下到底是个什么鬼……
+简单说一下这个环境的状况，山坡驴是在Mac下面开发的，用docker-machine和virtualbox跑的docker，从最外层到最里层分别是
+Mac(macos) -&gt; virtualbox(tinylinux/boot2docker) -&gt; docker(alpine) 代码在Mac下面编辑，透过两层文件映射到最终的执行环境中，山坡驴觉得一定是这两层文件的映射出了问题，下面我开始查看到底是个什么原因导致了这样的问题，我先从中间这一层入手。
+在最外层执行了一句 for i in `seq 1 100`; do echo $i; echo $i&gt;&gt;test.log; sleep 3;done
+使用 docker-machine ssh machine-name 进入到中间一层查看，在tail -f test.log的时候居然神奇的发现 内容居然不更新了……更新了……新了……了……，执行wc -l  和 cat test.log | wc -l发现结果居然还不一样，用vi命令打开文件也正常，md5sum出来的文件md5值也和外面一样的，这是什么鬼？
+我开始怀疑是不是virtualbox的坑，因为之前有见过一个nginx的sendfile的坑，再加上virtualbox一直以来也是存在着各种各样的bug，而且公司的另外一个团队也在这么用，如果我遇上这个坑了，那么他们应该也一样会遇到的，找他们咨询了一下，他们一脸懵懵的表示没有过啊，一直好好的，非常正常，他们使用的PHP语言也是执行时才解释的语言，我遇到的问题他们应该一样会遇到的才是啊，难道在PHP是最好的语言的光环之下，灵异事件自动退散？这不可能……
+重新打包了一个centos的镜象，直接进到第三层，docker container里面测试，发现居然全都是好的，返回到第二次，还是一样的问题，如果说是vbox的锅，那么为什么中间层错了最里层居然还是对的，这不应该，再仔细想了想，tinylinux和alpine默认的shell都是busybox，是不是这货的锅呢？带着这个疑问我去alpine的docker container里做测试，果然还是出错的，那这样子结果就明了了，busybox在这种情况下无法追踪到文件的修改，所以在这样的测试环境下面，还是老老实实的用bash以及各类unix工具吧，慎用busybox。
+完毕
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        February 29, 2016
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://sempr.github.io/post/random_password/" class="link black dim">
+        生成随机密码
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      山坡驴近来折腾各种服务器和软件比较多，各种需要生成随机密码，在网上找到了一个生成密码的命令，在这里记录一下
+cat /dev/urandom | tr -dc &#39;a-zA-Z0-9&#39; | fold -w 10 | head -1 在Mac下面会遇到如下的错误 Sempr@fred % tr -dc &#39;a-zA-Z0-9&#39; &lt; /dev/urandom| fold -w 10 | head -1 tr: Illegal byte sequence
+解决方案也很简单，最前面加一下LC_CTYPE=C
+LC_CTYPE=C tr -dc &#39;a-zA-Z0-9&#39; &lt; /dev/urandom| fold -w 10 | head -1 
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        February 28, 2016
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://sempr.github.io/post/first/" class="link black dim">
+        山坡驴准备一本正经的瞎扯了，至于能坚持多久，看看吧
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      山坡驴不是一个做事情很有毅力的人，想过很多次要认真写博客的，半途而废了很多回，这次决定肯定又是一个偶然，一年之后看看能写多少吧！
+请给山坡驴一些掌声!!
+    </div>
+  </div>
+
+        </div>
+      
+    </aside>
+    
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://sempr.github.io/" >
+    &copy;  瞎扯中的山坡驴 2022 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+</div></div>
+  </div>
+</footer>
+
+  </body>
+</html>
